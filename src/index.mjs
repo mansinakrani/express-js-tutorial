@@ -8,9 +8,9 @@ app.use(express.json())
 const PORT = process.env.PORT || 3000;
 
 const mockUsers = [
-  { id:1, username: 'anson', displayname: 'Anson' },
-  { id:2, username: 'jack', displayname: 'Jack' },
-  { id:3, username: 'adam', displayname: 'Adam' },
+  { id:1, username: 'anson', displayName: 'Anson' },
+  { id:2, username: 'jack', displayName: 'Jack' },
+  { id:3, username: 'adam', displayName: 'Adam' },
   { id:4, username: "tina", displayName: "Tina" },
 	{ id:5, username: "jason", displayName: "Jason" },
 	{ id:6, username: "henry", displayName: "Henry" },
@@ -61,3 +61,20 @@ app.get("/api/products", (request, response) => {
 app.listen(PORT, () =>  {
   console.log(`Runnning on port ${PORT}`);
 });
+
+//PUT :- Update entire resource
+app.put("/api/users/:id", (request, response) => {
+	const { body, params: { id } } = request;
+	const parsedId = parseInt(id);
+	if (isNaN(parsedId)) return response.sendStatus(400);
+
+	const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+	if (findUserIndex === -1) return response.sendStatus(404);
+
+	mockUsers[findUserIndex] = { id: parsedId, ...body };
+	return response.sendStatus(200);
+})
+
+//PATCH :- Update partial entity
+//DELETE
