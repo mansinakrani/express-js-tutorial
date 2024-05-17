@@ -1,4 +1,5 @@
 import express from "express";
+import { query, validationResult , body, matchedData} from "express-validator";
 
 const app = express();
 
@@ -47,16 +48,18 @@ app.get('/',
   response.status(201).send({ msg: "Hello!" })
 });
 
-app.get('/api/users', (request, response) => {
-  console.log(request.query);
-  // response.send(mockUsers);
-  const { query: { filter, value}, } = request;
+app.get('/api/users', query('filter').isString().notEmpty().withMessage('Must not be empty').isLength({ min: 3, max: 10 }).withMessage('Must be at least 3-10 characters'), (request, response) => {
+	// console.log(request['express-validator#contexts']);
+	// response.send(mockUsers);
+	const result = validationResult(request);
+	console.log(result);
+	const { query: { filter, value }, } = request;
 
 	// when filter & value are undefined
 	if (filter && value) return response.send(
 		mockUsers.filter((user) => user[filter].includes(value))
-		);
-		return response.send(mockUsers);
+	);
+	return response.send(mockUsers);
 });
 
 // app.use(loggingMiddleware);
@@ -66,14 +69,22 @@ app.use(loggingMiddleware, (request, response, next) => {
 });
 
 
-app.post("/api/users", (request, response) => {
-	console.log(request.body);
-	const { body } = request;
-	const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body };
-	mockUsers.push(newUser);
-	return response.status(201).send(newUser);
-	// return response.send(200);
-})
+app.post("/api/users",
+ [
+	body('username').notEmpty().withMessage('Username cannot be empty').isLength({ min: 5, max: 32 }).withMessage("Username must be at least 5 characters with a max of 32 characters").isString().withMessage("Username must be a string"),
+	body("displayName").notEmpty(),
+	],
+	(request, response) => {
+		const result = validationResult(request);
+		console.log(result);
+		// result.isEmpty() // return true if there are no errors, false otherwise
+		if (!result.isEmpty())
+			return response.status(400).send({ errors: result.array() });
+		const data = matchedData(request);
+		const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...data };
+		mockUsers.push(newUser);
+		return response.status(201).send(newUser);
+ })
 
 app.get("/api/users/:id", resolveIndexByUserId, (request, response) => {
 	console.log(request.params);

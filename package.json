@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/mansinakrani/express-js-tutorial#readme",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "express-validator": "^7.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
