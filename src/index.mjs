@@ -1,13 +1,14 @@
 import express from "express";
 import routes from "./routes/index.mjs";
-// import productsRouter from "./routes/products.mjs"
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 // register middleware
 app.use(express.json());
+// app.use(cookieParser());
+app.use(cookieParser("helloworld"));
 app.use(routes);
-// app.use(productsRouter);
 
 
 //middleware - must be register before route
@@ -25,6 +26,8 @@ app.get('/',
 }, 
 (request, response) => {
   // response.send("Hello, World!");
+	response.cookie("hello","world", { maxAge: 30000, signed: true }); //60000 ms = 1 min, 1hr = 60000 * 60,2hr = 60000 * 60 * 2
+  // If we are using signed: true then we must provide secret , otherwise we will get Error: cookieParser("secret") required for signed cookies
   response.status(201).send({ msg: "Hello!" })
 });
 
